@@ -26,7 +26,7 @@ const ProjectCard = ({ id, title, dueDate, users }: ProjectCardProps) => {
     const { token } = theme.useToken();
 
     const { edit }  = useNavigation();
-    const { mutate } = useDelete
+    const { mutate } = useDelete();
 
     const dropdownItems = useMemo(() => {
         const dropdownItems: MenuProps['items'] = [
