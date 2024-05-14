@@ -25,6 +25,14 @@ interface Company {
   avatarUrl?: string;
   dealsAggregate?: DealAggregate[];
 }
+interface ProjectCardProps {
+  users: {
+    id: string;
+    name: string;
+    avatarUrl?: string | null;
+  }[];
+  // Other properties
+}
 
 export const CompanyList = ({ children }: React.PropsWithChildren) => {
   const go = useGo();
