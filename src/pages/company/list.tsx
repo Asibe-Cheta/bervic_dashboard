@@ -1,13 +1,15 @@
+import React from 'react';
+import { List, Table, Space } from 'antd';
+import { CreateButton, EditButton, DeleteButton, FilterDropdown } from '@refinedev/antd';
+import { useTable, HttpError, getDefaultFilter, useGo } from '@refinedev/core';
+import { SearchOutlined } from '@ant-design/icons';
+import { Input } from 'antd';
 import CustomAvatar from '@/components/custom-avatar';
 import { Text } from '@/components/text';
 import { COMPANIES_LIST_QUERY } from '@/graphql/queries';
 import { CompaniesListQuery } from '@/graphql/types';
 import { currencyNumber } from '@/utilities';
-import { SearchOutlined } from '@ant-design/icons';
-import { CreateButton, DeleteButton, EditButton, FilterDropdown, List, useTable } from '@refinedev/antd';
-import { HttpError, getDefaultFilter, useGo } from '@refinedev/core';
 import { GetFieldsFromList } from '@refinedev/nestjs-query';
-import { Input, Space, Table } from 'antd';
 
 interface Sum {
   value: number;
@@ -22,34 +24,26 @@ interface Company {
   name: string;
   age: number;
   address: string;
-  avatarUrl?: string;
+  avatarUrl?: string | null;
   dealsAggregate?: DealAggregate[];
-}
-interface ProjectCardProps {
-  users: {
-    id: string;
-    name: string;
-    avatarUrl?: string | null;
-  }[];
-  // Other properties
 }
 
 export const CompanyList = ({ children }: React.PropsWithChildren) => {
   const go = useGo();
-  const { tableProps, filters } = useTable<
+  const { tableQueryResult } = useTable<
     GetFieldsFromList<CompaniesListQuery>,
     HttpError,
     GetFieldsFromList<CompaniesListQuery>
   >({
     resource: 'companies',
-    onSearch: (values) => {
-      return [
+    filters: {
+      initial: [
         {
           field: 'name',
           operator: 'contains',
-          value: values.name,
+          value: undefined,
         },
-      ];
+      ],
     },
     pagination: {
       pageSize: 12,
@@ -62,46 +56,40 @@ export const CompanyList = ({ children }: React.PropsWithChildren) => {
         },
       ],
     },
-    filters: {
-      initial: [
-        {
-          field: 'name',
-          operator: 'contains',
-          value: undefined,
-        },
-      ],
-    },
     meta: {
       gqlQuery: COMPANIES_LIST_QUERY,
     },
   });
 
+  const { data, isLoading } = tableQueryResult;
+
+  const companies = data?.data ?? [];
+
   return (
     <div>
-      <List
-        breadcrumb={false}
-        headerButtons={() => (
-          <CreateButton
-            onClick={() => {
-              go({
-                to: {
-                  resource: 'companies',
-                  action: 'create',
-                },
-                options: {
-                  keepQuery: true,
-                },
-                type: 'replace',
-              });
-            }}
-          />
-        )}
-      >
-        <Table {...tableProps} pagination={{ ...tableProps.pagination }}>
+      <List>
+        <CreateButton
+          onClick={() => {
+            go({
+              to: {
+                resource: 'companies',
+                action: 'create',
+              },
+              options: {
+                keepQuery: true,
+              },
+              type: 'replace',
+            });
+          }}
+        />
+        <Table
+          dataSource={companies}
+          loading={isLoading}
+          pagination={{ pageSize: 12 }}
+        >
           <Table.Column<Company>
             dataIndex="name"
             title="Company Title"
-            defaultFilteredValue={getDefaultFilter('id', filters)}
             filterIcon={<SearchOutlined />}
             filterDropdown={(props) => (
               <FilterDropdown {...props}>
@@ -110,7 +98,7 @@ export const CompanyList = ({ children }: React.PropsWithChildren) => {
             )}
             render={(value, record) => (
               <Space>
-                <CustomAvatar shape="square" name={record.name} src={record.avatarUrl} />
+                <CustomAvatar shape="square" name={record.name} src={record.avatarUrl ?? undefined} />
                 <Text style={{ whiteSpace: 'nowrap' }}>{record.name}</Text>
               </Space>
             )}
