@@ -1,14 +1,15 @@
 import CustomAvatar from '@/components/custom-avatar';
 import { Text } from '@/components/text';
 import { TextIcon } from '@/components/text-icon';
+import { User } from '@/graphql/schema.types';
 import { getDateColor } from '@/utilities';
 import { ClockCircleOutlined, DeleteOutlined, EyeOutlined, MoreOutlined } from '@ant-design/icons';
 import { useDelete, useNavigation } from '@refinedev/core';
 import { Button, Card, Dropdown, MenuProps, Space, Tag, Tooltip, theme } from 'antd';
 import { ConfigProvider } from 'antd/lib';
 import dayjs from 'dayjs';
-import React, { memo, useMemo } from 'react';
-import { text } from 'stream/consumers';
+import  { memo, useMemo } from 'react';
+
 
 type ProjectCardProps = {
     id: string,
@@ -18,7 +19,7 @@ type ProjectCardProps = {
     users?: {
         id: string,
         name: string,
-        avatarUrl?: string // Assuming User['avatarUrl'] is a string
+        avatarUrl?: User['avatarUrl']
     }[]
 };
 
